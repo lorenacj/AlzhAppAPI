@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<link th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}" rel="stylesheet">
+	<!--<link th:href="@{/webjars/font-awesome/6.4.2/css/font-awesome.css}" rel="stylesheet">-->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/css/home.css">
+	</link>
+	<title>Home</title>
+</head>
+
+<body>
+	<div class="navbar" th:replace="~{navbar :: navbarFragment}"></div>
+
+	<div class="container">
+		<br>
+		<div class="custom-card-container">
+			<div class="card mb-3 custom-card">
+				<img src="../static/imgs/imagen3.jpeg" th:src="@{/imgs/imagen3.jpeg}" class="card-img-top card-image"
+					alt="...">
+				<div class="card-body">
+					<h5 class="card-title">Caring with Love</h5>
+					<p class="card-text">Accompanying your loved one every step of the way. Discover how our application
+						can ease your worries and simplify care for your loved ones with Alzheimer's.</p>
+				</div>
+			</div>
+			<div class="card mb-3 custom-card">
+				<img src="../static/imgs/imagen2.jpeg" th:src="@{/imgs/imagen2.jpeg}" class="card-img-top card-image"
+					alt="...">
+				<div class="card-body">
+					<h5 class="card-title">AlzhApp: Your Trusted Companion</h5>
+					<p class="card-text">An all-in-one solution for caring for your loved ones with Alzheimer's or
+						dementia. Manage medication, record symptoms, organize activities, and more, all in an
+						easy-to-use
+						application.</p>
+				</div>
+			</div>
+			<div class="card mb-3 custom-card">
+				<img src="../static/imgs/imagen1.jpeg" th:src="@{/imgs/imagen1.jpeg}" class="card-img-top card-image"
+					alt="...">
+				<div class="card-body">
+					<h5 class="card-title">Healthy Mind, Happy Heart</h5>
+					<p class="card-text">Promote connection and well-being through mental exercises. Join our community
+						and discover how our application can strengthen the minds and souls of your loved ones as they
+						face Alzheimer's.</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<a href="/administration/crud/carer"> CRUD</a>
+
+	<footer class="footer">
+		<div class="waves">
+			<div class="wave" id="wave1"></div>
+			<div class="wave" id="wave2"></div>
+			<div class="wave" id="wave3"></div>
+			<div class="wave" id="wave4"></div>
+		</div>
+		<ul class="social-icon">
+			<li class="social-icon__item"><a class="social-icon__link" href="#">
+					<ion-icon name="logo-facebook"></ion-icon>
+				</a></li>
+			<li class="social-icon__item"><a class="social-icon__link" href="#">
+					<ion-icon name="logo-twitter"></ion-icon>
+				</a></li>
+			<li class="social-icon__item"><a class="social-icon__link" href="#">
+					<ion-icon name="logo-linkedin"></ion-icon>
+				</a></li>
+			<li class="social-icon__item"><a class="social-icon__link" href="#">
+					<ion-icon name="logo-instagram"></ion-icon>
+				</a></li>
+		</ul>
+		<ul class="menu">
+			<li class="menu__item"><a class="menu__link" href="#">Home</a></li>
+			<li class="menu__item"><a class="menu__link" href="#">About us</a></li>
+			<li class="menu__item"><a class="menu__link" href="#">Services</a></li>
+			<li class="menu__item"><a class="menu__link" href="#">Contact</a></li>
+
+		</ul>
+		<p>&copy;2024 AlzhApp | All Rights Reserved</p>
+	</footer>
+
+	<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+	<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
+
+</html>

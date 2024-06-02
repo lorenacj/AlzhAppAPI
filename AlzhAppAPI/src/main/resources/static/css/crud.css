@@ -1,0 +1,20 @@
+		td {
+			height: 50px;
+			line-height: 50px;
+			text-align: center;
+			min-width: 100px;
+			padding: 0 10px;
+			width: auto !important;
+		}
+
+		td.acciones {
+			min-width: 200px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.acciones * {
+			display: inline-block;
+			vertical-align: middle;
+		}
