@@ -23,7 +23,7 @@ jobs:
 
       - name: Build with Maven
         run: |
-          cd AlzhAppAPI 
+          cd AlzhAppAPI # Cambia al directorio donde está el pom.xml relativo a la raíz del repositorio
           mvn clean install
 
       - name: Upload artifact for deployment job
@@ -39,7 +39,7 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
+      id-token: write # This is required for requesting the JWT
   
     steps:
       - name: Download artifact from build job
@@ -61,4 +61,3 @@ jobs:
           app-name: 'apialzhapp'
           slot-name: 'Production'
           package: '*.jar'
-          
