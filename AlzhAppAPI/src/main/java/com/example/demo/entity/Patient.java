@@ -43,10 +43,10 @@ public class Patient {
 	private Date birthdate;
 
 	@NotNull(message = "Height can not be null")
-	private int height;
+	private float height;
 
 	@NotNull(message = "Weight can not be null")
-	private int weight;
+	private float weight;
 
 	private String disorder;
 

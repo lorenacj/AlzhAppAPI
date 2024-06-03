@@ -18,8 +18,8 @@ public class PatientModel {
 	private String name;
 	private String lastname;
 	private Date birthdate;
-	private int height;
-	private int weight;
+	private float height;
+	private float weight;
 	private String disorder;
 	private String passportId;
 	private boolean enabled;
