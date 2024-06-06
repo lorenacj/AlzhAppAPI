@@ -11,6 +11,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.entity.Carer;
 import com.example.demo.entity.FamilyUnit;
@@ -31,12 +32,11 @@ public class PatientServiceImpl implements PatientService {
 	@Autowired
 	@Qualifier("familyUnitRepository")
 	private FamilyUnitRepository familyUnitRepository;
-	
+
 	@Autowired
 	@Qualifier("carerRepository")
 	private CarerRepository carerRepository;
 
-	
 	@Override
 	public List<PatientModel> listAllPatient() {
 		ModelMapper modelMapper = new ModelMapper();
@@ -48,62 +48,58 @@ public class PatientServiceImpl implements PatientService {
 
 	@Override
 	public Patient addPatient(PatientModel patientModel, Carer carer) {
-	    // Transformar el modelo de paciente a una instancia de paciente
-	    Patient patient = transformPatient(patientModel);
-	    
-	    // Generar un código aleatorio para FamilyUnit
-	    String randomCode = generateRandomCode();
+		// Transformar el modelo de paciente a una instancia de paciente
+		Patient patient = transformPatient(patientModel);
 
-	    // Crear una nueva instancia de FamilyUnit con el código aleatorio y guardarla en la base de datos
-	    FamilyUnit familyUnit = new FamilyUnit();
-	    familyUnit.setCode(randomCode);
-	    familyUnit = familyUnitRepository.save(familyUnit);
-	    
-	    // Guardar primero la instancia de Carer si es nueva
-	    if (carer.getId() == 0) {
-	    	carer.setFamilyUnit(Arrays.asList(familyUnit));
-	        carer = carerRepository.save(carer);
-	    }
-	    else {
-		    List<FamilyUnit> listfamilyUnit= new ArrayList<>();
-		    listfamilyUnit.add(familyUnit);
-		    carer.setFamilyUnit(listfamilyUnit);
-		    carerRepository.save(carer);
-	    }
-	    
-	    
-	    // Agregar el nuevo paciente a la lista de pacientes del cuidador
-	    List<Patient> listPatients = carer.getPatientsCare();
-	    listPatients.add(patient);
-	    carer.setPatientsCare(listPatients);
+		// Generar un código aleatorio para FamilyUnit
+		String randomCode = generateRandomCode();
 
-	    
-	    // Establecer la FamilyUnit del paciente y el cuidador asociado
-	    patient.setFamilyUnit(familyUnit);
-	    List<Carer> listCarers = new ArrayList<>();
-	    listCarers.add(carer);
-	    patient.setCarersCare(listCarers);
-	    
-	    // Guardar el paciente en la base de datos
-	    return patientRepository.save(patient);
+		// Crear una nueva instancia de FamilyUnit con el código aleatorio y guardarla
+		// en la base de datos
+		FamilyUnit familyUnit = new FamilyUnit();
+		familyUnit.setCode(randomCode);
+		familyUnit = familyUnitRepository.save(familyUnit);
+
+		// Guardar primero la instancia de Carer si es nueva
+		if (carer.getId() == 0) {
+			carer.setFamilyUnit(Arrays.asList(familyUnit));
+			carer = carerRepository.save(carer);
+		} else {
+			List<FamilyUnit> listfamilyUnit = new ArrayList<>();
+			listfamilyUnit.add(familyUnit);
+			carer.setFamilyUnit(listfamilyUnit);
+			carerRepository.save(carer);
+		}
+
+		// Agregar el nuevo paciente a la lista de pacientes del cuidador
+		List<Patient> listPatients = carer.getPatientsCare();
+		listPatients.add(patient);
+		carer.setPatientsCare(listPatients);
+
+		// Establecer la FamilyUnit del paciente y el cuidador asociado
+		patient.setFamilyUnit(familyUnit);
+		List<Carer> listCarers = new ArrayList<>();
+		listCarers.add(carer);
+		patient.setCarersCare(listCarers);
+
+		// Guardar el paciente en la base de datos
+		return patientRepository.save(patient);
 	}
 
-	
-	
 	private static final String CHARACTERS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-	 public static String generateRandomCode() {
-	        Random random = new Random();
-	        StringBuilder code = new StringBuilder();
+	public static String generateRandomCode() {
+		Random random = new Random();
+		StringBuilder code = new StringBuilder();
 
-	        for (int i = 0; i < 9; i++) {
-	            int randomIndex = random.nextInt(CHARACTERS.length());
-	            code.append(CHARACTERS.charAt(randomIndex));
-	        }
+		for (int i = 0; i < 9; i++) {
+			int randomIndex = random.nextInt(CHARACTERS.length());
+			code.append(CHARACTERS.charAt(randomIndex));
+		}
 
-	        return code.toString();
-	    }
-	 
+		return code.toString();
+	}
+
 	@Override
 	public int removePatient(int id) {
 		patientRepository.deleteById(id);
@@ -112,26 +108,26 @@ public class PatientServiceImpl implements PatientService {
 
 	@Override
 	public Patient updatePatient(PatientModel patientModel) {
-		 // Buscar el paciente por su ID
-	    Patient existingPatient = patientRepository.findById(patientModel.getId());
-	    if (existingPatient == null) {
-	        return null; // Devolver null si el paciente no existe
-	    }
+		// Buscar el paciente por su ID
+		Patient existingPatient = patientRepository.findById(patientModel.getId());
+		if (existingPatient == null) {
+			return null; // Devolver null si el paciente no existe
+		}
 
-	    // Actualizar los campos del paciente con los valores del modelo
-	    existingPatient.setName(patientModel.getName());
-	    existingPatient.setLastname(patientModel.getLastname());
-	    existingPatient.setBirthdate(patientModel.getBirthdate());
-	    existingPatient.setHeight(patientModel.getHeight());
-	    existingPatient.setWeight(patientModel.getWeight());
-	    existingPatient.setDisorder(patientModel.getDisorder());
+		// Actualizar los campos del paciente con los valores del modelo
+		existingPatient.setName(patientModel.getName());
+		existingPatient.setLastname(patientModel.getLastname());
+		existingPatient.setBirthdate(patientModel.getBirthdate());
+		existingPatient.setHeight(patientModel.getHeight());
+		existingPatient.setWeight(patientModel.getWeight());
+		existingPatient.setDisorder(patientModel.getDisorder());
 //	    existingPatient.setPassportid(patientModel.getPassportid());
-	    existingPatient.setEnabled(patientModel.isEnabled());
-	    existingPatient.setDeleted(patientModel.isDeleted());
-	    // Agregar más campos según sea necesario
+		existingPatient.setEnabled(patientModel.isEnabled());
+		existingPatient.setDeleted(patientModel.isDeleted());
+		// Agregar más campos según sea necesario
 
-	    // Guardar y devolver el paciente actualizado
-	    return patientRepository.save(existingPatient);
+		// Guardar y devolver el paciente actualizado
+		return patientRepository.save(existingPatient);
 	}
 
 	@Override
@@ -139,7 +135,6 @@ public class PatientServiceImpl implements PatientService {
 		return carer.getPatientsCare();
 	}
 
-	
 	@Override
 	public Patient findPatientByFamily(Family family) {
 		// TODO Auto-generated method stub
@@ -151,11 +146,13 @@ public class PatientServiceImpl implements PatientService {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 	@Override
 	public Patient findPatientById(int id) {
-		
+
 		return patientRepository.findById(id);
 	}
+
 	@Override
 	public Patient transformPatient(PatientModel patientModel) {
 		if (patientModel == null)
@@ -175,8 +172,19 @@ public class PatientServiceImpl implements PatientService {
 	@Override
 	public Patient checkPassportid(String passportid) {
 
-		return patientRepository.findAll().stream().filter(patient -> patient.getPassportid().equals(passportid)).findFirst()
-				.orElse(null);
+		return patientRepository.findAll().stream().filter(patient -> patient.getPassportid().equals(passportid))
+				.findFirst().orElse(null);
+	}
+
+	@Override
+	@Transactional
+	public int deletePatientAndFamilyUnit(Patient patient) {
+		FamilyUnit familyUnit = patient.getFamilyUnit();
+
+		familyUnitRepository.delete(familyUnit);
+
+		patientRepository.delete(patient);
+		return 1;
 	}
 
 	@Override
@@ -184,15 +192,14 @@ public class PatientServiceImpl implements PatientService {
 		List<Patient> listPatients = carer.getPatientsCare();
 		listPatients.add(patient);
 		carer.setPatientsCare(listPatients);
-		
+
 		List<Carer> listCarers = patient.getCarersCare();
-	    listCarers.add(carer);
-	    patient.setCarersCare(listCarers);
-	    
-	    carer = carerRepository.save(carer);
-	    
+		listCarers.add(carer);
+		patient.setCarersCare(listCarers);
+
+		carer = carerRepository.save(carer);
+
 		return patientRepository.save(patient);
 	}
-
 
 }

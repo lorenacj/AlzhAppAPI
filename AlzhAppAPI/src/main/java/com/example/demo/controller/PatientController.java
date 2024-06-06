@@ -1,6 +1,5 @@
 package com.example.demo.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.entity.Carer;
 import com.example.demo.entity.FamilyUnit;
 import com.example.demo.entity.Patient;
-import com.example.demo.model.FamilyUnitModel;
 import com.example.demo.model.PatientModel;
 import com.example.demo.service.CarerService;
 import com.example.demo.service.FamilyUnitService;
@@ -92,6 +91,29 @@ public class PatientController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(savedPatient);
 
 	}
+	
+    @DeleteMapping("/patientapi/delete/{patientId}")
+    public ResponseEntity<?> deletePatient(
+            @RequestHeader("Authorization") String token,
+            @PathVariable int patientId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        Carer carer = carerService.findByUsername(username);
+
+        if (carer == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado o no autorizado.");
+        }
+
+        Patient patient = patientService.findPatientById(patientId);
+
+        if (patient == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Paciente no encontrado.");
+        }
+
+        patientService.deletePatientAndFamilyUnit(patient);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 
 	@GetMapping("/patientapi/getpatients/carer")
 	public ResponseEntity<?> getPatientsByCarer(@RequestHeader("Authorization") String token) {

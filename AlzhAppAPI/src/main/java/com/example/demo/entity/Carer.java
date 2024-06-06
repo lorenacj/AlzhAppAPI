@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.hibernate.validator.constraints.Length;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -55,6 +57,7 @@ public class Carer {
 
 	// Relations
 	@ManyToMany
+	@JsonIgnore
 	@JoinTable(name = "carer_patient", joinColumns = @JoinColumn(name = "carer_id"), inverseJoinColumns = @JoinColumn(name = "patient_id"))
 	private List<Patient> patientsCare;
 
