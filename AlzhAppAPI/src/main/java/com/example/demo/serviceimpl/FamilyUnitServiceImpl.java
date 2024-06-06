@@ -4,13 +4,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.entity.Carer;
 import com.example.demo.entity.FamilyUnit;
 import com.example.demo.entity.Patient;
 import com.example.demo.model.FamilyUnitModel;
+import com.example.demo.model.PatientModel;
 import com.example.demo.repository.FamilyUnitRepository;
 import com.example.demo.service.FamilyUnitService;
 
@@ -54,4 +57,23 @@ public class FamilyUnitServiceImpl implements FamilyUnitService {
 		return familyUnitRepository.findAll().stream().collect(Collectors.toList());
 	}
 
+	@Override
+	public List<FamilyUnit> getFamilyByCarer(Carer carer) {
+		return familyUnitRepository.findAll().stream().collect(Collectors.toList());
+	}
+	@Override
+	public FamilyUnit transform(FamilyUnitModel familyUnitModel) {
+		if (familyUnitModel == null)
+			return null;
+		ModelMapper modelMapper = new ModelMapper();
+		return modelMapper.map(familyUnitModel, FamilyUnit.class);
+	}
+
+	@Override
+	public FamilyUnitModel transform(FamilyUnit familyUnit) {
+		if (familyUnit == null)
+			return null;
+		ModelMapper modelMapper = new ModelMapper();
+		return modelMapper.map(familyUnit, FamilyUnitModel.class);
+	}
 }

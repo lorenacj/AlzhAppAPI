@@ -36,7 +36,7 @@ public class Patient {
 	private String name;
 
 	@NotBlank(message = "Last name can not be empty")
-	@Length(min = 5, max = 50, message = "Lastname length must be between 5 and 50 characters")
+	@Length(min = 2, max = 50, message = "Lastname length must be between 5 and 50 characters")
 	private String lastname;
 
 	@NotNull(message = "Birthdate can not be null")

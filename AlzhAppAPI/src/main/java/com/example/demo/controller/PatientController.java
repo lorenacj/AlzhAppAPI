@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.entity.Carer;
 import com.example.demo.entity.FamilyUnit;
 import com.example.demo.entity.Patient;
+import com.example.demo.model.FamilyUnitModel;
 import com.example.demo.model.PatientModel;
 import com.example.demo.service.CarerService;
 import com.example.demo.service.FamilyUnitService;
@@ -26,88 +27,109 @@ import com.example.demo.service.PatientService;
 
 @RestController
 public class PatientController {
-	
+
 	@Autowired
 	@Qualifier("patientService")
 	private PatientService patientService;
-	
+
 	@Autowired
 	@Qualifier("familyUnitService")
 	private FamilyUnitService familyUnitService;
-	
+
 	@Autowired
 	@Qualifier("carerService")
 	private CarerService carerService;
-	
+
 	@PostMapping("/patientapi/add")
-	public ResponseEntity<?> addPatient(@RequestBody PatientModel patient,@RequestHeader("Authorization") String token){
-		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    String username = authentication.getName();
-	    
-	    Carer carer=carerService.findByUsername(username);
+	public ResponseEntity<?> addPatient(@RequestBody PatientModel patient,
+			@RequestHeader("Authorization") String token) {
 
-	    if (carer == null) {
-	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado o no autorizado.");
-	    }
-	    
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
+
+		Carer carer = carerService.findByUsername(username);
+
+		if (carer == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado o no autorizado.");
+		}
+
 		Patient existingPatient = patientService.checkPassportid(patient.getPassportId());
-		
-        if (existingPatient != null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("The provided Passport ID is already associated with another patient.");
-        }
-        
-        // Si el DNI no existe, agregar el nuevo paciente
-        Patient savedPatient = patientService.addPatient(patient,carer);
 
-        // Retornar una respuesta con el nuevo paciente agregado
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedPatient);
-		
+		if (existingPatient != null) {
+			return ResponseEntity.status(HttpStatus.CONFLICT)
+					.body("The provided Passport ID is already associated with another patient.");
+		}
+
+		// Si el DNI no existe, agregar el nuevo paciente
+		Patient savedPatient = patientService.addPatient(patient, carer);
+
+		// Retornar una respuesta con el nuevo paciente agregado
+		return ResponseEntity.status(HttpStatus.CREATED).body(savedPatient);
+
 	}
-	
+
 	@PostMapping("/patientapi/addCarer/{code}")
-	public ResponseEntity<?> addCarerPatient(@RequestHeader("Authorization") String token, @PathVariable String code){
-		
+	public ResponseEntity<?> addCarerPatient(@RequestHeader("Authorization") String token, @PathVariable String code) {
+
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    String username = authentication.getName();
-	    
-	    Carer carer=carerService.findByUsername(username);
+		String username = authentication.getName();
 
-	    if (carer == null) {
-	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado o no autorizado.");
-	    }
-	    
-	    FamilyUnit familyUnit = familyUnitService.checkCode(code);
-	    Patient patient=familyUnit.getPatient();
-        if (patient == null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("The patient this code is null");
-        }
-        
-        Patient savedPatient = patientService.savePatientWithCarer(patient,carer);
+		Carer carer = carerService.findByUsername(username);
 
-        // Retornar una respuesta con el nuevo paciente agregado
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedPatient);
-		
+		if (carer == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado o no autorizado.");
+		}
+
+		FamilyUnit familyUnit = familyUnitService.checkCode(code);
+		Patient patient = familyUnit.getPatient();
+		if (patient == null) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body("The patient this code is null");
+		}
+
+		Patient savedPatient = patientService.savePatientWithCarer(patient, carer);
+
+		// Retornar una respuesta con el nuevo paciente agregado
+		return ResponseEntity.status(HttpStatus.CREATED).body(savedPatient);
+
 	}
-	
+
 	@GetMapping("/patientapi/getpatients/carer")
 	public ResponseEntity<?> getPatientsByCarer(@RequestHeader("Authorization") String token) {
-	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    String username = authentication.getName();
-	    
-	    Carer carer = carerService.findByUsername(username);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
 
-	    if (carer == null) {
-	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found or not authorized.");
+		Carer carer = carerService.findByUsername(username);
+
+		if (carer == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found or not authorized.");
+		}
+
+		List<Patient> listPatients = patientService.findPatientByCarer(carer);
+		if (listPatients == null || listPatients.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.OK).body("No patients selected.");
+		}
+
+		return ResponseEntity.ok(listPatients);
+	}
+
+
+	@GetMapping("/patientapi/getuf/carer")
+	public ResponseEntity<?> getFamilyUnitByCarer(@RequestHeader("Authorization") String token) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
+
+		Carer carer = carerService.findByUsername(username);
+System.out.println(carer);
+		if (carer == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found or not authorized.");
+		}
+	    // Inicializa listfamily
+	    List<FamilyUnit> listfamily = carer.getFamilyUnit();
+
+	    if (listfamily.isEmpty()) {
+	        return ResponseEntity.status(HttpStatus.OK).body("No family selected.");
 	    }
-	    
-	    List<Patient> listPatients = patientService.findPatientByCarer(carer);
-	    if (listPatients == null || listPatients.isEmpty()) {
-	        return ResponseEntity.status(HttpStatus.OK).body("No patients selected.");
-	    }
-	    
-	    return ResponseEntity.ok(listPatients);
+
+	    return ResponseEntity.ok(listfamily);
 	}
 }

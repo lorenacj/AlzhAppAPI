@@ -1,5 +1,7 @@
 package com.example.demo.model;
 
+import com.example.demo.entity.Patient;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class FamilyUnitModel {
 	private int id;
 	private String code;
-	private int patientId;
+	private Patient patientId;
 }

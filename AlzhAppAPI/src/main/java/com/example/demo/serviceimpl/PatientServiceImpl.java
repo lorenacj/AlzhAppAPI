@@ -64,12 +64,19 @@ public class PatientServiceImpl implements PatientService {
 	    	carer.setFamilyUnit(Arrays.asList(familyUnit));
 	        carer = carerRepository.save(carer);
 	    }
+	    else {
+		    List<FamilyUnit> listfamilyUnit= new ArrayList<>();
+		    listfamilyUnit.add(familyUnit);
+		    carer.setFamilyUnit(listfamilyUnit);
+		    carerRepository.save(carer);
+	    }
 	    
 	    
 	    // Agregar el nuevo paciente a la lista de pacientes del cuidador
 	    List<Patient> listPatients = carer.getPatientsCare();
 	    listPatients.add(patient);
 	    carer.setPatientsCare(listPatients);
+
 	    
 	    // Establecer la FamilyUnit del paciente y el cuidador asociado
 	    patient.setFamilyUnit(familyUnit);
@@ -132,6 +139,7 @@ public class PatientServiceImpl implements PatientService {
 		return carer.getPatientsCare();
 	}
 
+	
 	@Override
 	public Patient findPatientByFamily(Family family) {
 		// TODO Auto-generated method stub

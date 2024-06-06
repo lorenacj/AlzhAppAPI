@@ -31,6 +31,11 @@ public class EventServiceImpl implements EventService{
         event.setPatient(patient);
         return eventRepository.save(event);
     }
+    
+    @Override
+    public List<Event> getEventsByType(String type) {
+        return eventRepository.findByType(type);
+    }
 
     @Override
     public Event updateEvent(EventModel eventModel) {

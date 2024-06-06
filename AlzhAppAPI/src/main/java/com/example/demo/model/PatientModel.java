@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.example.demo.entity.Carer;
 import com.example.demo.entity.Event;
+import com.example.demo.entity.FamilyUnit;
 import com.example.demo.entity.Medicine;
 import com.example.demo.entity.Symptom;
 
@@ -24,7 +25,7 @@ public class PatientModel {
 	private String passportId;
 	private boolean enabled;
 	private boolean deleted;
-	private int familyUnitId;
+	private FamilyUnit familyUnitId;
 	private List<Carer> carerIds;
 	private List<Medicine> medicineIds;
 	private List<Event> eventIds;

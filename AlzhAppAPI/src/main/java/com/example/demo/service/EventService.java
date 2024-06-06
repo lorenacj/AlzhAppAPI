@@ -25,4 +25,6 @@ public interface EventService {
 	public abstract Event transformEvent(EventModel eventModel);
 	
 	public abstract EventModel transformEvent(Event event);
+
+	public abstract List<Event> getEventsByType(String type);
 }
