@@ -59,7 +59,7 @@ public class Patient {
 	private boolean deleted;
 
 	@ManyToMany(mappedBy = "patientsCare")
-//    @JsonIgnore
+    @JsonIgnore
     private List<Carer> carersCare;
 
 	@OneToOne

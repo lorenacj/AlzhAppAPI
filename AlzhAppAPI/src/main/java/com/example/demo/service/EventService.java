@@ -3,6 +3,7 @@ package com.example.demo.service;
 import java.util.List;
 
 import com.example.demo.model.EventModel;
+import com.example.demo.entity.Carer;
 import com.example.demo.entity.Event;
 import com.example.demo.entity.Patient;
 
@@ -26,5 +27,8 @@ public interface EventService {
 	
 	public abstract EventModel transformEvent(Event event);
 
-	public abstract List<Event> getEventsByType(String type);
+	public abstract List<Event> getEventsByType(String type, Carer carer);
+
+	public abstract List<Event> getEventsByCarer(Carer carer);
+
 }

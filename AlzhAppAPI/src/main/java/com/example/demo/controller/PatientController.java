@@ -80,15 +80,21 @@ public class PatientController {
 		}
 
 		FamilyUnit familyUnit = familyUnitService.checkCode(code);
+		
 		Patient patient = familyUnit.getPatient();
 		if (patient == null) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body("The patient this code is null");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The patient code does not exist.");
 		}
+		
+		if(carer.getFamilyUnit().contains(familyUnit)) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body("The Carer is already related to the Family Unit.");
+		}
+
 
 		Patient savedPatient = patientService.savePatientWithCarer(patient, carer);
 
 		// Retornar una respuesta con el nuevo paciente agregado
-		return ResponseEntity.status(HttpStatus.CREATED).body(savedPatient);
+		return ResponseEntity.status(HttpStatus.CREATED).body("Carer has been added successfully.");
 
 	}
 	

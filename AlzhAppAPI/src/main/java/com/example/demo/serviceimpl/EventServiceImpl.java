@@ -1,5 +1,7 @@
 package com.example.demo.serviceimpl;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -8,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.entity.Carer;
 import com.example.demo.entity.Event;
 import com.example.demo.entity.Patient;
 import com.example.demo.model.EventModel;
@@ -33,8 +36,18 @@ public class EventServiceImpl implements EventService{
     }
     
     @Override
-    public List<Event> getEventsByType(String type) {
-        return eventRepository.findByType(type);
+    public List<Event> getEventsByType(String type, Carer carer) {
+    	 List<Event> events = new ArrayList<>();
+
+         for (Patient patient : carer.getPatientsCare()) {
+             for (Event event : patient.getEvents()) {
+                 if (event.getType().equalsIgnoreCase(type)) {
+                     events.add(event);
+                 }
+             }
+         }
+         events.sort(Comparator.comparing(Event::getInitialDate).reversed());
+         return events;
     }
 
     @Override
@@ -46,6 +59,7 @@ public class EventServiceImpl implements EventService{
     @Override
     public int deleteEvent(int eventId) {
         eventRepository.deleteById(eventId);
+        System.out.println(eventId);
         return eventId;
     }
 
@@ -94,6 +108,17 @@ public class EventServiceImpl implements EventService{
 	    
 	    ModelMapper modelMapper = new ModelMapper();
 	    return modelMapper.map(event, EventModel.class);
+	}
+
+	@Override
+	public List<Event> getEventsByCarer(Carer carer) {
+		List<Event> events = new ArrayList<>();
+
+        for (Patient patient : carer.getPatientsCare()) {
+            events.addAll(patient.getEvents());
+        }
+        events.sort(Comparator.comparing(Event::getInitialDate).reversed());
+        return events;
 	}
 
 }
