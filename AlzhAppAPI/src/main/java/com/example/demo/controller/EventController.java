@@ -75,15 +75,11 @@ public class EventController {
 		if (carer == null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado o no autorizado.");
 		}
-		if (type == null) {
-			List<Event> eventsOnlyCarer = eventService.getEventsByCarer(carer);
-			return ResponseEntity.ok(eventsOnlyCarer);
-		}
 		List<Event> events = eventService.getEventsByType(type, carer);
 		return ResponseEntity.ok(events);
 	}
 
-	@GetMapping("/eventapi/getCarer")
+	@GetMapping("/eventapi/byCarer")
 	public ResponseEntity<?> getEventsByCarer(@RequestHeader("Authorization") String token) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = authentication.getName();
