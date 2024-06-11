@@ -110,6 +110,7 @@ public class CarerServiceImpl implements CarerService {
 		Carer carer = transformCarer(carerModel);
 		carer.setPassword(carerpasswordEncoder().encode(carer.getPassword()));
 		carer.setRole("ROLE_CARER");
+		carer.setEnabled(true);
 		List<Patient> patients = null;
 		carer.setPatientsCare(patients);
 		List<FamilyUnit> family=null;

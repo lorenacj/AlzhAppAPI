@@ -81,6 +81,8 @@ public class PatientServiceImpl implements PatientService {
 		List<Carer> listCarers = new ArrayList<>();
 		listCarers.add(carer);
 		patient.setCarersCare(listCarers);
+		
+		patient.setEnabled(true);
 
 		// Guardar el paciente en la base de datos
 		return patientRepository.save(patient);
@@ -132,7 +134,9 @@ public class PatientServiceImpl implements PatientService {
 
 	@Override
 	public List<Patient> findPatientByCarer(Carer carer) {
-		return carer.getPatientsCare();
+		 return carer.getPatientsCare().stream()
+			        .filter(patient -> patient.isEnabled() && !patient.isDeleted())
+			        .collect(Collectors.toList());
 	}
 
 	@Override
@@ -196,7 +200,7 @@ public class PatientServiceImpl implements PatientService {
 		List<Carer> listCarers = patient.getCarersCare();
 		listCarers.add(carer);
 		patient.setCarersCare(listCarers);
-		
+		patient.setEnabled(true);
 		//insertar la unidad familiar
 		if(carer.getFamilyUnit()!=null) {
 			List<FamilyUnit> listFamily = carer.getFamilyUnit();

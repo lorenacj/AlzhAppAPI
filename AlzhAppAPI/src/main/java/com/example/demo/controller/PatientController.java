@@ -51,6 +51,10 @@ public class PatientController {
 		if (carer == null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado o no autorizado.");
 		}
+		
+		if(!carer.isEnabled()) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User isn't ENABLE");
+		}
 
 		Patient existingPatient = patientService.checkPassportid(patient.getPassportId());
 

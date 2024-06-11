@@ -44,6 +44,9 @@ public class CarerController {
 	@PostMapping("/api/login")
 	public ResponseEntity<?> login(@RequestParam("username") String username, @RequestParam("password") String pwd) {
 		Carer carer = carerService.findByUsername(username);
+		if(!carer.isEnabled()) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User isn't ENABLE");
+		}
 		if (carer != null && carerService.checkPassword(pwd, carer.getPassword())) {
 			String token = getJWTToken(carer.getUsername(), carer.getRole());
 			carer.setToken(token);
