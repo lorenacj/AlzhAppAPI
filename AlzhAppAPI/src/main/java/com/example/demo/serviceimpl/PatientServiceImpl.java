@@ -134,9 +134,10 @@ public class PatientServiceImpl implements PatientService {
 
 	@Override
 	public List<Patient> findPatientByCarer(Carer carer) {
-		 return carer.getPatientsCare().stream()
-			        .filter(patient -> patient.isEnabled() && !patient.isDeleted())
-			        .collect(Collectors.toList());
+		return carer.getPatientsCare();
+//		 return carer.getPatientsCare().stream()
+//			        .filter(patient -> patient.isEnabled() && !patient.isDeleted())
+//			        .collect(Collectors.toList());
 	}
 
 	@Override
