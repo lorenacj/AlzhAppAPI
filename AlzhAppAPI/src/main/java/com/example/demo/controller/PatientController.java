@@ -94,7 +94,7 @@ public class PatientController {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body("The Carer is already related to the Family Unit.");
 		}
 
-		patientService.savePatientWithCarer(patient, carer);
+		Patient savedPatient = patientService.savePatientWithCarer(patient, carer);
 
 		// Retornar una respuesta con el nuevo paciente agregado
 		return ResponseEntity.status(HttpStatus.CREATED).body("Carer has been added successfully.");
