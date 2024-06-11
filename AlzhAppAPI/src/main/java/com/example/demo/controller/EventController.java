@@ -76,6 +76,9 @@ public class EventController {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado o no autorizado.");
 		}
 		List<Event> events = eventService.getEventsByType(type, carer);
+		if(events==null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No hay ningun evento");
+		}
 		return ResponseEntity.ok(events);
 	}
 
@@ -91,6 +94,9 @@ public class EventController {
 		}
 
 		List<Event> eventsOnlyCarer = eventService.getEventsByCarer(carer);
+		if(eventsOnlyCarer==null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No hay ningun evento");
+		}
 		return ResponseEntity.ok(eventsOnlyCarer);
 
 	}
@@ -110,8 +116,11 @@ public class EventController {
 		Patient patient = patientService.findPatientById(idPatient);
 
 		List<Event> events = patient.getEvents();
+		
+		if(events==null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No hay ningun evento");
+		}
 		events.sort(Comparator.comparing(Event::getInitialDate).reversed());
-
 		return ResponseEntity.ok(events);
 	}
 	
