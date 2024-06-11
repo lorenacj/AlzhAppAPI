@@ -110,34 +110,39 @@ public class PatientServiceImpl implements PatientService {
 
 	@Override
 	public Patient updatePatient(PatientModel patientModel) {
-		// Buscar el paciente por su ID
-		Patient existingPatient = patientRepository.findById(patientModel.getId());
-		if (existingPatient == null) {
-			return null; // Devolver null si el paciente no existe
-		}
+	    // Buscar el paciente por su ID
+	    Patient existingPatient = patientRepository.findById(patientModel.getId());
+	    if (existingPatient == null) {
+	        return null; // Devolver null si el paciente no existe
+	    }
 
-		// Actualizar los campos del paciente con los valores del modelo
-		existingPatient.setName(patientModel.getName());
-		existingPatient.setLastname(patientModel.getLastname());
-		existingPatient.setBirthdate(patientModel.getBirthdate());
-		existingPatient.setHeight(patientModel.getHeight());
-		existingPatient.setWeight(patientModel.getWeight());
-		existingPatient.setDisorder(patientModel.getDisorder());
-//	    existingPatient.setPassportid(patientModel.getPassportid());
-		existingPatient.setEnabled(patientModel.isEnabled());
-		existingPatient.setDeleted(patientModel.isDeleted());
-		// Agregar más campos según sea necesario
+	    // No actualizar el passportId, solo verificar que coincidan
+	    if (!existingPatient.getPassportid().equals(patientModel.getPassportId())) {
+	        throw new IllegalArgumentException("No se puede modificar el Passport ID.");
+	    }
 
-		// Guardar y devolver el paciente actualizado
-		return patientRepository.save(existingPatient);
+	    // Actualizar los campos del paciente con los valores del modelo
+	    existingPatient.setName(patientModel.getName());
+	    existingPatient.setLastname(patientModel.getLastname());
+	    existingPatient.setBirthdate(patientModel.getBirthdate());
+	    existingPatient.setHeight(patientModel.getHeight());
+	    existingPatient.setWeight(patientModel.getWeight());
+	    existingPatient.setDisorder(patientModel.getDisorder());
+	    existingPatient.setEnabled(patientModel.isEnabled());
+	    existingPatient.setDeleted(patientModel.isDeleted());
+	    // Agregar más campos según sea necesario
+
+	    // Guardar y devolver el paciente actualizado
+	    return patientRepository.save(existingPatient);
 	}
+
 
 	@Override
 	public List<Patient> findPatientByCarer(Carer carer) {
-		return carer.getPatientsCare();
-//		 return carer.getPatientsCare().stream()
-//			        .filter(patient -> patient.isEnabled() && !patient.isDeleted())
-//			        .collect(Collectors.toList());
+//		return carer.getPatientsCare();
+		 return carer.getPatientsCare().stream()
+			        .filter(patient -> patient.isEnabled() && !patient.isDeleted())
+			        .collect(Collectors.toList());
 	}
 
 	@Override

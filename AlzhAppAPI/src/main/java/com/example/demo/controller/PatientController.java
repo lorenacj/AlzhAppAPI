@@ -51,8 +51,8 @@ public class PatientController {
 		if (carer == null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado o no autorizado.");
 		}
-		
-		if(!carer.isEnabled()) {
+
+		if (!carer.isEnabled()) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User isn't ENABLE");
 		}
 
@@ -84,16 +84,15 @@ public class PatientController {
 		}
 
 		FamilyUnit familyUnit = familyUnitService.checkCode(code);
-		
+
 		Patient patient = familyUnit.getPatient();
 		if (patient == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The patient code does not exist.");
 		}
-		
-		if(carer.getFamilyUnit().contains(familyUnit)) {
+
+		if (carer.getFamilyUnit().contains(familyUnit)) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body("The Carer is already related to the Family Unit.");
 		}
-
 
 		Patient savedPatient = patientService.savePatientWithCarer(patient, carer);
 
@@ -101,29 +100,27 @@ public class PatientController {
 		return ResponseEntity.status(HttpStatus.CREATED).body("Carer has been added successfully.");
 
 	}
-	
-    @DeleteMapping("/patientapi/delete/{patientId}")
-    public ResponseEntity<?> deletePatient(
-            @RequestHeader("Authorization") String token,
-            @PathVariable int patientId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
 
-        Carer carer = carerService.findByUsername(username);
+	@DeleteMapping("/patientapi/delete/{patientId}")
+	public ResponseEntity<?> deletePatient(@RequestHeader("Authorization") String token, @PathVariable int patientId) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
 
-        if (carer == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado o no autorizado.");
-        }
+		Carer carer = carerService.findByUsername(username);
 
-        Patient patient = patientService.findPatientById(patientId);
+		if (carer == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado o no autorizado.");
+		}
 
-        if (patient == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Paciente no encontrado.");
-        }
+		Patient patient = patientService.findPatientById(patientId);
 
-        patientService.deletePatientAndFamilyUnit(patient);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
+		if (patient == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Paciente no encontrado.");
+		}
+
+		patientService.deletePatientAndFamilyUnit(patient);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
 
 	@GetMapping("/patientapi/getpatients/carer")
 	public ResponseEntity<?> getPatientsByCarer(@RequestHeader("Authorization") String token) {
@@ -138,12 +135,11 @@ public class PatientController {
 
 		List<Patient> listPatients = patientService.findPatientByCarer(carer);
 		if (listPatients == null || listPatients.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.OK).body("No patients selected.");
+			return ResponseEntity.status(HttpStatus.OK).body("This Carer don't have any patient.");
 		}
 
 		return ResponseEntity.ok(listPatients);
 	}
-
 
 	@GetMapping("/patientapi/getuf/carer")
 	public ResponseEntity<?> getFamilyUnitByCarer(@RequestHeader("Authorization") String token) {
@@ -151,17 +147,46 @@ public class PatientController {
 		String username = authentication.getName();
 
 		Carer carer = carerService.findByUsername(username);
-System.out.println(carer);
+		System.out.println(carer);
 		if (carer == null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found or not authorized.");
 		}
-	    // Inicializa listfamily
-	    List<FamilyUnit> listfamily = carer.getFamilyUnit();
+		// Inicializa listfamily
+		List<FamilyUnit> listfamily = carer.getFamilyUnit();
 
-	    if (listfamily.isEmpty()) {
-	        return ResponseEntity.status(HttpStatus.OK).body("No family selected.");
+		if (listfamily.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.OK).body("No family selected.");
+		}
+
+		return ResponseEntity.ok(listfamily);
+	}
+	
+	@PostMapping("/patientapi/update")
+	public ResponseEntity<?> updatePatient(@RequestBody PatientModel patientModel, @RequestHeader("Authorization") String token) {
+	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    String username = authentication.getName();
+
+	    Carer carer = carerService.findByUsername(username);
+
+	    if (carer == null) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado o no autorizado.");
 	    }
 
-	    return ResponseEntity.ok(listfamily);
+	    Patient existingPatient = patientService.findPatientById(patientModel.getId());
+
+	    if (existingPatient == null) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Paciente no encontrado.");
+	    }
+	    System.out.println(patientModel);
+	    System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+	    System.out.println(existingPatient);
+	    // Verificar si el Passport ID del modelo coincide con el del paciente existente
+	    if (!existingPatient.getPassportid().equals(patientModel.getPassportId())) {
+	        return ResponseEntity.status(HttpStatus.CONFLICT).body("No se puede modificar el Passport ID.");
+	    }
+
+	    Patient updatedPatient = patientService.updatePatient(patientModel);
+	    return ResponseEntity.ok(updatedPatient);
 	}
+
 }
