@@ -65,7 +65,7 @@ public class PatientServiceImpl implements PatientService {
 			carer.setFamilyUnit(Arrays.asList(familyUnit));
 			carer = carerRepository.save(carer);
 		} else {
-			List<FamilyUnit> listfamilyUnit = new ArrayList<>();
+			List<FamilyUnit> listfamilyUnit =carer.getFamilyUnit();
 			listfamilyUnit.add(familyUnit);
 			carer.setFamilyUnit(listfamilyUnit);
 			carerRepository.save(carer);
