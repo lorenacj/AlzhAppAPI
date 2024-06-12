@@ -128,7 +128,7 @@ public class PatientServiceImpl implements PatientService {
 	    existingPatient.setHeight(patientModel.getHeight());
 	    existingPatient.setWeight(patientModel.getWeight());
 	    existingPatient.setDisorder(patientModel.getDisorder());
-	    existingPatient.setEnabled(patientModel.isEnabled());
+	    existingPatient.setEnabled(true);
 	    existingPatient.setDeleted(patientModel.isDeleted());
 	    // Agregar más campos según sea necesario
 
