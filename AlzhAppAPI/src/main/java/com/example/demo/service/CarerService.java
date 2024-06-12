@@ -33,4 +33,8 @@ public interface CarerService {
 
 	public abstract Carer findByUsername(String passportID);
 
+	public abstract Carer saveCarer(Carer carer);
+
+	public abstract void removePatientReferences(Patient patient);
+
 }

@@ -32,24 +32,23 @@ public class CarerServiceImpl implements CarerService {
 
 	@Override
 	public List<CarerModel> listAllCarer() {
-		
-			ModelMapper modelMapper = new ModelMapper();
 
-			List<Carer> carerList = carerRepository.findAll();
-			return carerList.stream().map(carer -> modelMapper.map(carer, CarerModel.class))
-					.collect(Collectors.toList());
+		ModelMapper modelMapper = new ModelMapper();
+
+		List<Carer> carerList = carerRepository.findAll();
+		return carerList.stream().map(carer -> modelMapper.map(carer, CarerModel.class)).collect(Collectors.toList());
 
 	}
 
 	// puedes seleccionar role
-	  public Carer addCarer(CarerModel carerModel) {
-	        // Implementa la lógica para añadir un cuidador
-	        Carer carer = transformCarer(carerModel);
-	        carer.setPassword(carerpasswordEncoder.encode(carer.getPassword()));
-	        carer.setRole("ROLE_CARER");
-	        
-	        return carerRepository.save(carer);
-	    }
+	public Carer addCarer(CarerModel carerModel) {
+		// Implementa la lógica para añadir un cuidador
+		Carer carer = transformCarer(carerModel);
+		carer.setPassword(carerpasswordEncoder.encode(carer.getPassword()));
+		carer.setRole("ROLE_CARER");
+
+		return carerRepository.save(carer);
+	}
 
 	@Override
 	public int removeCarer(int id) {
@@ -70,7 +69,7 @@ public class CarerServiceImpl implements CarerService {
 
 	@Override
 	public CarerModel findCarerByPatient(Patient patient) {
-		
+
 		return null;
 	}
 
@@ -89,6 +88,14 @@ public class CarerServiceImpl implements CarerService {
 		ModelMapper modelMapper = new ModelMapper();
 		return modelMapper.map(carerModel, Carer.class);
 	}
+	@Override
+	 public void removePatientReferences(Patient patient) {
+	        List<Carer> carers = carerRepository.findByPatientsCare(patient);
+	        for (Carer carer : carers) {
+	            carer.getPatientsCare().remove(patient);
+	            carerRepository.save(carer);
+	        }
+	    }
 
 	@Override
 	public CarerModel transformCarer(Carer carer) {
@@ -113,7 +120,7 @@ public class CarerServiceImpl implements CarerService {
 		carer.setEnabled(true);
 		List<Patient> patients = null;
 		carer.setPatientsCare(patients);
-		List<FamilyUnit> family=null;
+		List<FamilyUnit> family = null;
 		carer.setFamilyUnit(family);
 		return carerRepository.save(carer);
 	}
@@ -122,5 +129,11 @@ public class CarerServiceImpl implements CarerService {
 	PasswordEncoder carerpasswordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+
+	@Override
+	public Carer saveCarer(Carer carer) {
+		return carerRepository.save(carer);
+	}
+    
 
 }

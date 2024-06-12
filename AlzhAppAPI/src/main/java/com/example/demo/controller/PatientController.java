@@ -177,9 +177,7 @@ public class PatientController {
 	    if (existingPatient == null) {
 	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Paciente no encontrado.");
 	    }
-	    System.out.println(patientModel);
-	    System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-	    System.out.println(existingPatient);
+
 	    // Verificar si el Passport ID del modelo coincide con el del paciente existente
 	    if (!existingPatient.getPassportid().equals(patientModel.getPassportId())) {
 	        return ResponseEntity.status(HttpStatus.CONFLICT).body("No se puede modificar el Passport ID.");
@@ -187,6 +185,56 @@ public class PatientController {
 
 	    Patient updatedPatient = patientService.updatePatient(patientModel);
 	    return ResponseEntity.ok(updatedPatient);
+	}
+	
+	@PostMapping("/patientapi/exit/{patientId}")
+	public ResponseEntity<?> exitPatient(@RequestHeader("Authorization") String token, @PathVariable int patientId) {
+	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    String username = authentication.getName();
+
+	    Carer carer = carerService.findByUsername(username);
+
+	    if (carer == null) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado o no autorizado.");
+	    }
+
+	    Patient patient = patientService.findPatientById(patientId);
+
+	    if (patient == null) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Paciente no encontrado.");
+	    }
+
+	    FamilyUnit familyUnit = patient.getFamilyUnit();
+
+	    // Remover el carer de la lista de carers del paciente
+	    patient.getCarersCare().remove(carer);
+
+	    // Remover la unidad familiar del carer
+	    carer.getFamilyUnit().remove(familyUnit);
+
+	    // Guardar los cambios en el carer y paciente antes de continuar
+	    carerService.saveCarer(carer);
+	    patientService.savePatient(patient);
+
+	    String message;
+
+	    // Si el paciente no tiene más carers, eliminar el paciente y su unidad familiar
+	    if (patient.getCarersCare().isEmpty()) {
+	        // Eliminar todas las referencias del paciente en carer_patient
+	        carerService.removePatientReferences(patient);
+
+	        // Eliminar el paciente y la unidad familiar
+	        patientService.deletePatientAndFamilyUnit(patient);
+	        message = "El paciente ha sido eliminado ya que no tenía más cuidadores.";
+	        return ResponseEntity.ok(message);
+	    } else {
+	        // Guardar los cambios finales
+	        patientService.savePatient(patient);
+	        carerService.saveCarer(carer);
+	        message = "El cuidador ha salido de la unidad familiar y el paciente ha sido actualizado.";
+	    }
+
+	    return ResponseEntity.ok(message);
 	}
 
 }

@@ -35,4 +35,6 @@ public interface PatientService {
 	public abstract Patient findPatientById(int id);
 
 	public abstract int deletePatientAndFamilyUnit(Patient patient);
+
+	public abstract Patient savePatient(Patient patient);
 }

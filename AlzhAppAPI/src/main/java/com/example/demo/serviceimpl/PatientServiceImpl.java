@@ -220,5 +220,11 @@ public class PatientServiceImpl implements PatientService {
 
 		return patientRepository.save(patient);
 	}
+	
+
+    @Override
+    public Patient savePatient(Patient patient) {
+        return patientRepository.save(patient);
+    }
 
 }
