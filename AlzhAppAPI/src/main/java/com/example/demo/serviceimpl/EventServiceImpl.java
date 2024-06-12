@@ -121,4 +121,12 @@ public class EventServiceImpl implements EventService{
         return events;
 	}
 
+	@Override
+	public void remove(List<Event> events) {
+		for(Event e:events) {
+			eventRepository.deleteById(e.getId());
+		}
+		
+	}
+
 }

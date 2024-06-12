@@ -31,4 +31,6 @@ public interface EventService {
 
 	public abstract List<Event> getEventsByCarer(Carer carer);
 
+	public abstract void remove(List<Event> events);
+
 }

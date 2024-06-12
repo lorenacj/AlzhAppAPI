@@ -21,8 +21,10 @@ import com.example.demo.entity.FamilyUnit;
 import com.example.demo.entity.Patient;
 import com.example.demo.model.PatientModel;
 import com.example.demo.service.CarerService;
+import com.example.demo.service.EventService;
 import com.example.demo.service.FamilyUnitService;
 import com.example.demo.service.PatientService;
+import com.example.demo.service.SymptomService;
 
 @RestController
 public class PatientController {
@@ -34,6 +36,14 @@ public class PatientController {
 	@Autowired
 	@Qualifier("familyUnitService")
 	private FamilyUnitService familyUnitService;
+
+	@Autowired
+	@Qualifier("symptomService")
+	private SymptomService symptomService;
+	
+	@Autowired
+	@Qualifier("eventService")
+	private EventService eventService;
 
 	@Autowired
 	@Qualifier("carerService")
@@ -160,81 +170,96 @@ public class PatientController {
 
 		return ResponseEntity.ok(listfamily);
 	}
-	
+
 	@PostMapping("/patientapi/update")
-	public ResponseEntity<?> updatePatient(@RequestBody PatientModel patientModel, @RequestHeader("Authorization") String token) {
-	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    String username = authentication.getName();
+	public ResponseEntity<?> updatePatient(@RequestBody PatientModel patientModel,
+			@RequestHeader("Authorization") String token) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
 
-	    Carer carer = carerService.findByUsername(username);
+		Carer carer = carerService.findByUsername(username);
 
-	    if (carer == null) {
-	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado o no autorizado.");
-	    }
+		if (carer == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado o no autorizado.");
+		}
 
-	    Patient existingPatient = patientService.findPatientById(patientModel.getId());
+		Patient existingPatient = patientService.findPatientById(patientModel.getId());
 
-	    if (existingPatient == null) {
-	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Paciente no encontrado.");
-	    }
+		if (existingPatient == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Paciente no encontrado.");
+		}
 
-	    // Verificar si el Passport ID del modelo coincide con el del paciente existente
-	    if (!existingPatient.getPassportid().equals(patientModel.getPassportId())) {
-	        return ResponseEntity.status(HttpStatus.CONFLICT).body("No se puede modificar el Passport ID.");
-	    }
+		// Verificar si el Passport ID del modelo coincide con el del paciente existente
+		if (!existingPatient.getPassportid().equals(patientModel.getPassportId())) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body("No se puede modificar el Passport ID.");
+		}
 
-	    Patient updatedPatient = patientService.updatePatient(patientModel);
-	    return ResponseEntity.ok(updatedPatient);
+		Patient updatedPatient = patientService.updatePatient(patientModel);
+		return ResponseEntity.ok(updatedPatient);
 	}
-	
+
 	@PostMapping("/patientapi/exit/{patientId}")
 	public ResponseEntity<?> exitPatient(@RequestHeader("Authorization") String token, @PathVariable int patientId) {
-	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    String username = authentication.getName();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
 
-	    Carer carer = carerService.findByUsername(username);
+		Carer carer = carerService.findByUsername(username);
 
-	    if (carer == null) {
-	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado o no autorizado.");
-	    }
+		if (carer == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado o no autorizado.");
+		}
 
-	    Patient patient = patientService.findPatientById(patientId);
+		Patient patient = patientService.findPatientById(patientId);
 
-	    if (patient == null) {
-	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Paciente no encontrado.");
-	    }
+		if (patient == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Paciente no encontrado.");
+		}
 
-	    FamilyUnit familyUnit = patient.getFamilyUnit();
+		FamilyUnit familyUnit = patient.getFamilyUnit();
 
-	    // Remover el carer de la lista de carers del paciente
-	    patient.getCarersCare().remove(carer);
+		// Remover el carer de la lista de carers del paciente
+		patient.getCarersCare().remove(carer);
 
-	    // Remover la unidad familiar del carer
-	    carer.getFamilyUnit().remove(familyUnit);
+		// Remover la unidad familiar del carer
+		carer.getFamilyUnit().remove(familyUnit);
+		
+		if (patient.getSymptoms() != null) {
+			patient.getSymptoms().remove(patient.getSymptoms());
+		}
+		if(patient.getEvents()!=null) {
+			patient.getEvents().remove(patient.getEvents());
+		}
+		
+		// Guardar los cambios en el carer y paciente antes de continuar
+		carerService.saveCarer(carer);
+		patientService.savePatient(patient);
 
-	    // Guardar los cambios en el carer y paciente antes de continuar
-	    carerService.saveCarer(carer);
-	    patientService.savePatient(patient);
+		String message;
 
-	    String message;
+		// Si el paciente no tiene más carers, eliminar el paciente y su unidad familiar
+		if (patient.getCarersCare().isEmpty()) {
+			// Eliminar todas las referencias del paciente en carer_patient
+			carerService.removePatientReferences(patient);
 
-	    // Si el paciente no tiene más carers, eliminar el paciente y su unidad familiar
-	    if (patient.getCarersCare().isEmpty()) {
-	        // Eliminar todas las referencias del paciente en carer_patient
-	        carerService.removePatientReferences(patient);
+			// Eliminar el paciente y la unidad familiar
+			patientService.deletePatientAndFamilyUnit(patient);
+			// Remove los sismtomas
+			if (patient.getSymptoms() != null)
+				symptomService.remove(patient.getSymptoms());
+			
+			if(patient.getEvents()!=null) {
+				eventService.remove(patient.getEvents());
+			}
+			message = "El paciente ha sido eliminado ya que no tenía más cuidadores.";
+			return ResponseEntity.ok(message);
+		} else {
+			// Guardar los cambios finales
+			patientService.savePatient(patient);
+			carerService.saveCarer(carer);
+			message = "El cuidador ha salido de la unidad familiar y el paciente ha sido actualizado.";
+		}
 
-	        // Eliminar el paciente y la unidad familiar
-	        patientService.deletePatientAndFamilyUnit(patient);
-	        message = "El paciente ha sido eliminado ya que no tenía más cuidadores.";
-	        return ResponseEntity.ok(message);
-	    } else {
-	        // Guardar los cambios finales
-	        patientService.savePatient(patient);
-	        carerService.saveCarer(carer);
-	        message = "El cuidador ha salido de la unidad familiar y el paciente ha sido actualizado.";
-	    }
-
-	    return ResponseEntity.ok(message);
+		return ResponseEntity.ok(message);
 	}
 
 }

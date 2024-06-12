@@ -21,4 +21,6 @@ public interface SymptomService {
     public abstract Symptom transformSymptom(SymptomModel symptomModel);
     
     public abstract SymptomModel transformSymptom(Symptom symptom);
+
+	public abstract void remove(List<Symptom> symptoms);
 }
