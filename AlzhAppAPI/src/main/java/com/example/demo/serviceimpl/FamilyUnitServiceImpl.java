@@ -76,4 +76,11 @@ public class FamilyUnitServiceImpl implements FamilyUnitService {
 		ModelMapper modelMapper = new ModelMapper();
 		return modelMapper.map(familyUnit, FamilyUnitModel.class);
 	}
+	
+	@Override
+	public FamilyUnit findFamilyById(int id) {
+
+		return familyUnitRepository.findById(id);
+	}
+
 }

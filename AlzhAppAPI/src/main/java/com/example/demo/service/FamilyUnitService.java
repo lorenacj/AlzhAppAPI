@@ -25,4 +25,6 @@ public interface FamilyUnitService {
 	FamilyUnitModel transform(FamilyUnit familyUnit);
 
 	FamilyUnit transform(FamilyUnitModel familyUnitModel);
+
+	FamilyUnit findFamilyById(int id);
 }

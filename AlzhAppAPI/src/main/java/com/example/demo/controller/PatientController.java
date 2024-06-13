@@ -110,6 +110,39 @@ public class PatientController {
 		return ResponseEntity.status(HttpStatus.CREATED).body("Carer has been added successfully.");
 
 	}
+	
+	@GetMapping("/patientapi/getcode/{idPatient}")
+	public ResponseEntity<?> getCodePatient(@RequestHeader("Authorization") String token, @PathVariable int idPatient) {
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
+
+		Carer carer = carerService.findByUsername(username);
+
+		if (carer == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado o no autorizado.");
+		}
+
+//		FamilyUnit familyUnit = familyUnitService.checkCode(code);
+
+		Patient patient = patientService.findPatientById(idPatient);
+		if (patient == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The patient does not exist.");
+		}
+		
+		FamilyUnit family=familyUnitService.findFamilyById(idPatient);
+		
+		if(family==null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("There is no family unit for that patient.");
+		}
+		
+//		Patient savedPatient = patientService.savePatientWithCarer(patient, carer);
+
+		// Retornar una respuesta con el nuevo paciente agregado
+		return ResponseEntity.status(HttpStatus.CREATED).body(family.getCode());
+
+	}
+
 
 	@DeleteMapping("/patientapi/delete/{patientId}")
 	public ResponseEntity<?> deletePatient(@RequestHeader("Authorization") String token, @PathVariable int patientId) {
